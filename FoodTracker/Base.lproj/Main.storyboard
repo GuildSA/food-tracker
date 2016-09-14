@@ -20,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="12" translatesAutoresizingMaskIntoConstraints="NO" id="VFh-vO-JRz">
-                                <rect key="frame" x="20" y="80" width="560" height="437"/>
+                                <rect key="frame" x="20" y="80" width="560" height="493"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Meal Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BBe-km-DVT">
                                         <rect key="frame" x="0.0" y="0.0" width="87" height="21"/>
@@ -50,6 +50,10 @@
                                             <outletCollection property="gestureRecognizers" destination="r22-18-Ogy" appends="YES" id="ccU-hB-zn5"/>
                                         </connections>
                                     </imageView>
+                                    <view contentMode="scaleToFill" placeholderIntrinsicWidth="240" placeholderIntrinsicHeight="44" translatesAutoresizingMaskIntoConstraints="NO" id="Fa9-wu-yPH" customClass="RatingControl" customModule="FoodTracker" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="449" width="240" height="44"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="7pG-1d-HJB" secondAttribute="trailing" id="3iL-bu-TzI"/>
@@ -68,6 +72,7 @@
                         <outlet property="mealNameLabel" destination="BBe-km-DVT" id="Iqh-Bz-4pj"/>
                         <outlet property="nameTextField" destination="7pG-1d-HJB" id="Qhh-vS-3i3"/>
                         <outlet property="photoImageView" destination="Y0V-Qw-tBw" id="srr-Kh-xP8"/>
+                        <outlet property="ratingControl" destination="Fa9-wu-yPH" id="SqP-SA-FTE"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
