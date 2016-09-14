@@ -13,6 +13,7 @@
 		E74660771D89ED3D0019DB34 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E74660761D89ED3D0019DB34 /* Assets.xcassets */; };
 		E746607A1D89ED3D0019DB34 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E74660781D89ED3D0019DB34 /* LaunchScreen.storyboard */; };
 		E74660821D89FAFA0019DB34 /* RatingControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E74660811D89FAFA0019DB34 /* RatingControl.swift */; };
+		E74660841D8A02F70019DB34 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = E74660831D8A02F70019DB34 /* Meal.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		E74660791D89ED3D0019DB34 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E746607B1D89ED3D0019DB34 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E74660811D89FAFA0019DB34 /* RatingControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingControl.swift; sourceTree = "<group>"; };
+		E74660831D8A02F70019DB34 /* Meal.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -63,6 +65,7 @@
 				E74660761D89ED3D0019DB34 /* Assets.xcassets */,
 				E74660781D89ED3D0019DB34 /* LaunchScreen.storyboard */,
 				E746607B1D89ED3D0019DB34 /* Info.plist */,
+				E74660831D8A02F70019DB34 /* Meal.swift */,
 			);
 			path = FoodTracker;
 			sourceTree = "<group>";
@@ -138,6 +141,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E74660841D8A02F70019DB34 /* Meal.swift in Sources */,
 				E74660721D89ED3D0019DB34 /* ViewController.swift in Sources */,
 				E74660821D89FAFA0019DB34 /* RatingControl.swift in Sources */,
 				E74660701D89ED3D0019DB34 /* AppDelegate.swift in Sources */,
