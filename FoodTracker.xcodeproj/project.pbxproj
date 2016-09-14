@@ -84,11 +84,11 @@
 				E746606F1D89ED3D0019DB34 /* AppDelegate.swift */,
 				E74660711D89ED3D0019DB34 /* ViewController.swift */,
 				E74660811D89FAFA0019DB34 /* RatingControl.swift */,
+				E74660831D8A02F70019DB34 /* Meal.swift */,
 				E74660731D89ED3D0019DB34 /* Main.storyboard */,
 				E74660761D89ED3D0019DB34 /* Assets.xcassets */,
 				E74660781D89ED3D0019DB34 /* LaunchScreen.storyboard */,
 				E746607B1D89ED3D0019DB34 /* Info.plist */,
-				E74660831D8A02F70019DB34 /* Meal.swift */,
 			);
 			path = FoodTracker;
 			sourceTree = "<group>";
@@ -407,6 +407,7 @@
 				E74660911D8A04B60019DB34 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
