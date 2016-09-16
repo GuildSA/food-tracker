@@ -25,12 +25,14 @@ class RatingControl: UIView {
     // MARK: Initialization
     
     required init?(coder aDecoder: NSCoder) {
+        
         super.init(coder: aDecoder)
         
         let filledStarImage = UIImage(named: "filledStar")
         let emptyStarImage = UIImage(named: "emptyStar")
         
         for _ in 0..<starCount {
+            
             let button = UIButton()
             
             button.setImage(emptyStarImage, forState: .Normal)
@@ -53,6 +55,7 @@ class RatingControl: UIView {
         
         // Offset each button's origin by the length of the button plus spacing.
         for (index, button) in ratingButtons.enumerate() {
+            
             buttonFrame.origin.x = CGFloat(index * (buttonSize + 5))
             button.frame = buttonFrame
         }
@@ -71,6 +74,7 @@ class RatingControl: UIView {
     // MARK: Button Action
     
     func ratingButtonTapped(button: UIButton) {
+        
         rating = ratingButtons.indexOf(button)! + 1
         
         updateButtonSelectionStates()
@@ -83,5 +87,4 @@ class RatingControl: UIView {
             button.selected = index < rating
         }
     }
-    
 }

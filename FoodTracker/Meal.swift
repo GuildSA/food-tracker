@@ -24,6 +24,7 @@ class Meal: NSObject, NSCoding {
     // MARK: Types
     
     struct PropertyKey {
+        
         static let nameKey = "name"
         static let photoKey = "photo"
         static let ratingKey = "rating"
@@ -49,12 +50,14 @@ class Meal: NSObject, NSCoding {
     // MARK: NSCoding
     
     func encodeWithCoder(aCoder: NSCoder) {
+        
         aCoder.encodeObject(name, forKey: PropertyKey.nameKey)
         aCoder.encodeObject(photo, forKey: PropertyKey.photoKey)
         aCoder.encodeInteger(rating, forKey: PropertyKey.ratingKey)
     }
     
     required convenience init?(coder aDecoder: NSCoder) {
+        
         let name = aDecoder.decodeObjectForKey(PropertyKey.nameKey) as! String
         
         // Because photo is an optional property of Meal, use conditional cast.
