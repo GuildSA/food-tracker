@@ -23,14 +23,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        
+        // First, init Backendless!
         let backendless = Backendless.sharedInstance()
         backendless?.initApp(APP_ID, secret:SECRET_KEY, version:VERSION_NUM)
         backendless?.userService.setStayLoggedIn(true)
 
         
-        // First, check if the user is already logged in. If they are, we don't need to
-        // ask them to login again.
+        // Next, check if the user is already logged in. If they are - do nothing else!
         let isValidUser = backendless?.userService.isValidUserToken()
         
         if isValidUser != nil && isValidUser != 0 {
@@ -40,18 +39,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         } else {
             
+            // If the user is not logged in, register the test user,
+            // and if that suceeds, go ahead and log them in.
+            
             let user: BackendlessUser = BackendlessUser()
             user.email = EMAIL as NSString!
             user.password = PASSWORD as NSString!
             
             backendless?.userService.registering( user,
                                                  
-             response: { (user: BackendlessUser?) -> Void in
+            response: { (user: BackendlessUser?) -> Void in
                 
-                print("User was registered: \(user?.objectId)")
+                    print("User was registered: \(user?.objectId)")
                 
-                
-                backendless?.userService.login( self.EMAIL, password: self.PASSWORD,
+                    backendless?.userService.login( self.EMAIL, password: self.PASSWORD,
     
                         response: { (user: BackendlessUser?) -> Void in
                             print("User logged in: \(user!.objectId)")
@@ -61,7 +62,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                             print("User failed to login: \(fault)")
                         }
                     )
-                
                 },
                                                      
                 error: { (fault: Fault?) -> Void in
