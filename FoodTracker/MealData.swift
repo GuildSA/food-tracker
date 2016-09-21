@@ -1,5 +1,5 @@
 //
-//  Meal.swift
+//  MealData.sift
 //  FoodTracker
 //
 //  Created by Kevin Harris on 9/14/16.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Meal: NSObject, NSCoding {
+class MealData: NSObject, NSCoding {
     
     // MARK: Properties
     
