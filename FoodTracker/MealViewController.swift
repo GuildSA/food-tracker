@@ -118,7 +118,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
             let photo = photoImageView.image
             
 // TODO: Fix
-            let photoUrl = "http://placehold.it/150/980cc2"
+            let photoUrl = "https://guildsa.org/wp-content/uploads/2016/09/meal1.png"
             
             // Set the meal to be passed to MealTableViewController after the unwind segue.
             if meal == nil {
