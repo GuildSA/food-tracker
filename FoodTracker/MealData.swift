@@ -10,11 +10,16 @@ import UIKit
 
 class MealData: NSObject, NSCoding {
     
-    // MARK: Properties
+    // MARK: Common Properties Shared by Archiver and Backendless
     
     var name: String
-    var photo: UIImage?
     var rating: Int
+    
+    // MARK: Archiver Only Properties
+    
+    var photo: UIImage?
+    
+    // MARK: Backendless Only Properties
     
     var objectId: String?
     var photoUrl: String?
