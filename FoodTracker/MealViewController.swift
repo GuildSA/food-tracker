@@ -33,7 +33,13 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         if let meal = meal {
             navigationItem.title = meal.name
             nameTextField.text   = meal.name
-            photoImageView.image = meal.photo
+            
+            if BackendlessManager.sharedInstance.isUserLoggedIn() && meal.photoUrl != nil {
+                loadImageFromUrl(imageView: photoImageView, photoUrl: meal.photoUrl!)
+            } else {
+                photoImageView.image = meal.photo
+            }
+            
             ratingControl.rating = meal.rating
         }
         
@@ -108,11 +114,26 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         if saveButton === (sender as! UIBarButtonItem) {
             
             let name = nameTextField.text ?? ""
-            let photo = photoImageView.image
             let rating = ratingControl.rating
+            let photo = photoImageView.image
+            
+// TODO: Fix
+            let photoUrl = "http://placehold.it/150/980cc2"
             
             // Set the meal to be passed to MealTableViewController after the unwind segue.
-            meal = MealData(name: name, photo: photo, rating: rating)
+            if meal == nil {
+                
+                meal = MealData(name: name, photo: photo, rating: rating)
+                
+                meal?.photoUrl = photoUrl
+                
+            } else {
+                
+                meal?.name = name
+                meal?.photo = photo
+                meal?.rating = rating
+                meal?.photoUrl = photoUrl
+            }  
         }
     }
     
@@ -133,6 +154,42 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         imagePickerController.delegate = self
         
         present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    func loadImageFromUrl(imageView: UIImageView, photoUrl: String) {
+        
+        let url = URL(string: photoUrl)!
+        
+        let session = URLSession.shared
+        
+        let task = session.dataTask(with: url, completionHandler: { (data, response, error) in
+            
+            if error == nil {
+                
+                do {
+                    
+                    let data = try Data(contentsOf: url, options: [])
+                    
+                    DispatchQueue.main.async {
+                        
+                        // We got the image data! Use it to create a UIImage for our cell's
+                        // UIImageView.
+                        imageView.image = UIImage(data: data)
+                        
+                        // TODO: Add activity indicator.
+                        //activityIndicator.stopAnimating()
+                    }
+                    
+                } catch {
+                    print("NSData Error: \(error)")
+                }
+                
+            } else {
+                print("NSURLSession Error: \(error)")
+            }
+        })
+        
+        task.resume()
     }
 }
 

@@ -16,6 +16,9 @@ class MealData: NSObject, NSCoding {
     var photo: UIImage?
     var rating: Int
     
+    var objectId: String?
+    var photoUrl: String?
+    
     // MARK: Archiving Paths
     
     static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
