@@ -140,7 +140,7 @@ class BackendlessManager {
         )
     }
     
-    func saveMeal(mealData: MealData) {
+    func saveMeal(mealData: MealData, completion: @escaping () -> (), error: @escaping () -> ()) {
         
         let mealToSave = Meal()
         mealToSave.name = mealData.name
@@ -162,10 +162,14 @@ class BackendlessManager {
                 print("Meal: \(meal.objectId!), name: \(meal.name), photoUrl: \"\(meal.photoUrl!)\", rating: \"\(meal.rating)\"")
                 
                 mealData.objectId = meal.objectId
+                
+                completion()
             },
-                               
+            
             error: { (fault: Fault?) -> Void in
                 print("Meal failed to save: \(fault)")
+                
+                error()
             }
         )
     }
@@ -214,7 +218,7 @@ class BackendlessManager {
         )
     }
     
-    func removeMeal(mealToRemove: MealData, completion: () -> ()) {
+    func removeMeal(mealToRemove: MealData, completion: () -> (), error: @escaping () -> ()) {
         
         let meal = Meal()
         
@@ -226,17 +230,19 @@ class BackendlessManager {
         
         let dataStore = backendless.persistenceService.of(Meal.ofClass())
         
-        var error: Fault?
-        let result = dataStore?.remove(meal, fault: &error)
+        var fault: Fault?
+        let result = dataStore?.remove(meal, fault: &fault)
         
-        if error == nil {
+        if fault == nil {
             
             print("One Meal has been removed: \(result)")
             
             completion()
             
         } else {
-            print("Server reported an error on attempted removal: \(error)")
+            print("Server reported an error on attempted removal: \(fault)")
+            
+            error()
         }
     }
 }

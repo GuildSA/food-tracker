@@ -16,6 +16,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     @IBOutlet weak var photoImageView: UIImageView!
     @IBOutlet weak var ratingControl: RatingControl!
     @IBOutlet weak var saveButton: UIBarButtonItem!
+    @IBOutlet weak var saveSpinner: UIActivityIndicatorView!
     
     /*
      This value is either passed by `MealTableViewController` in `prepareForSegue(_:sender:)`
@@ -96,6 +97,67 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     
     // MARK: Navigation
     
+    @IBAction func save(_ sender: UIBarButtonItem) {
+        
+        let name = nameTextField.text ?? ""
+        let rating = ratingControl.rating
+        let photo = photoImageView.image
+        
+// TODO: Fix
+        let photoUrl = "https://guildsa.org/wp-content/uploads/2016/09/meal1.png"
+        
+        if meal == nil {
+            
+            meal = MealData(name: name, photo: photo, rating: rating)
+            
+            meal?.photoUrl = photoUrl
+            
+        } else {
+            
+            meal?.name = name
+            meal?.photo = photo
+            meal?.rating = rating
+            meal?.photoUrl = photoUrl
+        }
+        
+        if BackendlessManager.sharedInstance.isUserLoggedIn() {
+            
+            // We're logged in - attempt to save to Backendless!
+            saveSpinner.startAnimating()
+            
+            BackendlessManager.sharedInstance.saveMeal(mealData: meal!,
+                                                       
+               completion: {
+                
+                    // It was saved to the database!
+                    self.saveSpinner.stopAnimating()
+                
+                    self.performSegue(withIdentifier: "unwindToMealList", sender: self)
+                },
+                                                       
+               error: {
+                
+                    // It was NOT saved to the database! - tell the user and DON'T call performSegue.
+                    self.saveSpinner.stopAnimating()
+                    
+                    let alertController = UIAlertController(title: "Save Error",
+                                                            message: "Oops! We couldn't save your Meal at this time.",
+                                                            preferredStyle: .alert)
+                    
+                    let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                    alertController.addAction(okAction)
+                    
+                    self.present(alertController, animated: true, completion: nil)
+                }
+            )
+        } else {
+            
+            // We're not logged in - just unwind and have MealTableViewController 
+            // save later using NSKeyedArchiver.
+            self.performSegue(withIdentifier: "unwindToMealList", sender: self)
+        }
+    }
+    
     @IBAction func cancel(_ sender: UIBarButtonItem) {
         
         // Depending on style of presentation (modal or push presentation), this view controller needs to be dismissed in two different ways.
@@ -105,35 +167,6 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
             dismiss(animated: true, completion: nil)
         } else {
             navigationController!.popViewController(animated: true)
-        }
-    }
-    
-    // This method lets you configure a view controller before it's presented.
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
-        if saveButton === (sender as! UIBarButtonItem) {
-            
-            let name = nameTextField.text ?? ""
-            let rating = ratingControl.rating
-            let photo = photoImageView.image
-            
-// TODO: Fix
-            let photoUrl = "https://guildsa.org/wp-content/uploads/2016/09/meal1.png"
-            
-            // Set the meal to be passed to MealTableViewController after the unwind segue.
-            if meal == nil {
-                
-                meal = MealData(name: name, photo: photo, rating: rating)
-                
-                meal?.photoUrl = photoUrl
-                
-            } else {
-                
-                meal?.name = name
-                meal?.photo = photo
-                meal?.rating = rating
-                meal?.photoUrl = photoUrl
-            }  
         }
     }
     
@@ -158,6 +191,8 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     
     func loadImageFromUrl(imageView: UIImageView, photoUrl: String) {
         
+        saveSpinner.startAnimating()
+        
         let url = URL(string: photoUrl)!
         
         let session = URLSession.shared
@@ -175,9 +210,7 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
                         // We got the image data! Use it to create a UIImage for our cell's
                         // UIImageView.
                         imageView.image = UIImage(data: data)
-                        
-                        // TODO: Add activity indicator.
-                        //activityIndicator.stopAnimating()
+                        self.saveSpinner.stopAnimating()
                     }
                     
                 } catch {
