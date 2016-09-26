@@ -23,6 +23,9 @@ class MealData: NSObject, NSCoding {
     
     var objectId: String?
     var photoUrl: String?
+    var thumbnailUrl: String?
+    
+    var replacePhoto: Bool = false
     
     // MARK: Archiving Paths
     

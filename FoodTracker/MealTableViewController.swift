@@ -85,8 +85,10 @@ class MealTableViewController: UITableViewController {
         
         cell.nameLabel.text = meal.name
         
-        if BackendlessManager.sharedInstance.isUserLoggedIn() && meal.photoUrl != nil {
-            loadImageFromUrl(cell: cell, photoUrl: meal.photoUrl!)
+        cell.photoImageView.image = nil
+        
+        if BackendlessManager.sharedInstance.isUserLoggedIn() && meal.thumbnailUrl != nil {
+            loadImageFromUrl(cell: cell, thumbnailUrl: meal.thumbnailUrl!)
         } else {
             cell.photoImageView.image = meal.photo
         }
@@ -96,9 +98,9 @@ class MealTableViewController: UITableViewController {
         return cell
     }
 
-    func loadImageFromUrl(cell: MealTableViewCell, photoUrl: String) {
+    func loadImageFromUrl(cell: MealTableViewCell, thumbnailUrl: String) {
         
-        let url = URL(string: photoUrl)!
+        let url = URL(string: thumbnailUrl)!
         
         let session = URLSession.shared
         
