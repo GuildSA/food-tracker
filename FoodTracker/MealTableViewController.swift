@@ -100,6 +100,8 @@ class MealTableViewController: UITableViewController {
 
     func loadImageFromUrl(cell: MealTableViewCell, thumbnailUrl: String) {
         
+        cell.spinner.startAnimating()
+        
         let url = URL(string: thumbnailUrl)!
         
         let session = URLSession.shared
@@ -117,15 +119,17 @@ class MealTableViewController: UITableViewController {
                         // We got the image data! Use it to create a UIImage for our cell's
                         // UIImageView. Then, stop the activity spinner.
                         cell.photoImageView.image = UIImage(data: data)
-                        //cell.activityIndicator.stopAnimating()
+                        cell.spinner.stopAnimating()
                     }
                     
                 } catch {
                     print("NSData Error: \(error)")
+                    cell.spinner.stopAnimating()
                 }
                 
             } else {
                 print("NSURLSession Error: \(error)")
+                cell.spinner.stopAnimating()
             }
         })
         

@@ -17,9 +17,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         
         BackendlessManager.sharedInstance.initApp()
-
-        if !BackendlessManager.sharedInstance.isUserLoggedIn() {
-            BackendlessManager.sharedInstance.registerTestUser()
+        
+        if BackendlessManager.sharedInstance.isUserLoggedIn() {
+            
+            // If the user is logged in - skip the login view and go straight to the meal list!
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            
+            self.window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "mealNavController")
         }
         
         return true

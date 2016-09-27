@@ -25,13 +25,9 @@ class BackendlessManager {
     
     let backendless = Backendless.sharedInstance()!
     
-    
     let VERSION_NUM = "v1"
     let APP_ID = "F2C2DCED-C64B-3639-FFE7-1DCAD9C23C00"
     let SECRET_KEY = "592D0F41-FE91-2925-FF75-C228378D4B00"
-    
-    let EMAIL = "test@gmail.com" // Doubles as User Name
-    let PASSWORD = "password"
     
     func initApp() {
         
@@ -51,46 +47,64 @@ class BackendlessManager {
         }
     }
     
-    func registerTestUser() {
+    func registerUser(email: String, password: String, completion: @escaping () -> (), error: @escaping (String) -> ()) {
     
         let user: BackendlessUser = BackendlessUser()
-        user.email = EMAIL as NSString!
-        user.password = PASSWORD as NSString!
+        user.email = email as NSString!
+        user.password = password as NSString!
         
         backendless.userService.registering( user,
                                               
             response: { (user: BackendlessUser?) -> Void in
             
                 print("User was registered: \(user?.objectId)")
-            
-                self.loginTestUser()
+                completion()
             },
           
             error: { (fault: Fault?) -> Void in
                 print("User failed to register: \(fault)")
-            
-                print(fault?.faultCode)
-            
-                // If fault is for "User already exists." - go ahead and just login!
-                if fault?.faultCode == "3033" {
-                    self.loginTestUser()
-                }
+                error((fault?.message)!)
             }
         )
     }
     
-    func loginTestUser() {
+    func loginUser(email: String, password: String, completion: @escaping () -> (), error: @escaping (String) -> ()) {
         
-        backendless.userService.login( self.EMAIL, password: self.PASSWORD,
+        backendless.userService.login( email, password: password,
                                         
             response: { (user: BackendlessUser?) -> Void in
                 print("User logged in: \(user!.objectId)")
+                completion()
             },
-                                        
+            
             error: { (fault: Fault?) -> Void in
                 print("User failed to login: \(fault)")
-            }
-        )
+                error((fault?.message)!)
+            })
+    }
+    
+    func logoutUser(completion: @escaping () -> (), error: @escaping (String) -> ()) {
+        
+        // First, check if the user is actually logged in.
+        if isUserLoggedIn() {
+            
+            // If they are currently logged in - go ahead and log them out!
+            
+            backendless.userService.logout( { (user: Any!) -> Void in
+                    print("User logged out!")
+                    completion()
+                },
+                                            
+                error: { (fault: Fault?) -> Void in
+                    print("User failed to log out: \(fault)")
+                    error((fault?.message)!)
+                })
+            
+        } else {
+            
+            print("User is already logged out!");
+            completion()
+        }
     }
     
     func saveTestData() {
