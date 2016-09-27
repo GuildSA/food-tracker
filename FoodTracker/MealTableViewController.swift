@@ -12,7 +12,9 @@ class MealTableViewController: UITableViewController {
 
     // MARK: Properties
     
-    var meals = [Meal]()
+    var meals = [MealData]()
+    
+    let backendless = Backendless.sharedInstance()!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,25 +22,38 @@ class MealTableViewController: UITableViewController {
         // Use the edit button item provided by the table view controller.
         navigationItem.leftBarButtonItem = editButtonItem
         
-        // Load any saved meals, otherwise load sample data.
-        if let savedMeals = loadMeals() {
-            meals += savedMeals
+        if BackendlessManager.sharedInstance.isUserLoggedIn() {
+            
+            BackendlessManager.sharedInstance.loadMeals { mealData in
+                
+                self.meals += mealData
+                self.tableView.reloadData()
+            }
+            
         } else {
-            // Load the sample data.
-            loadSampleMeals()
+
+            // Load any saved meals, otherwise load sample data.
+            if let savedMeals = loadMealsFromArchiver() {
+                meals += savedMeals
+            } else {
+                // Load the sample data.
+                
+// HACK: Disabled sample meal data for now!
+//loadSampleMeals()
+            }
         }
     }
 
     func loadSampleMeals() {
         
         let photo1 = UIImage(named: "meal1")!
-        let meal1 = Meal(name: "Caprese Salad", photo: photo1, rating: 4)!
+        let meal1 = MealData(name: "Caprese Salad", photo: photo1, rating: 4)!
         
         let photo2 = UIImage(named: "meal2")!
-        let meal2 = Meal(name: "Chicken and Potatoes", photo: photo2, rating: 5)!
+        let meal2 = MealData(name: "Chicken and Potatoes", photo: photo2, rating: 5)!
         
         let photo3 = UIImage(named: "meal3")!
-        let meal3 = Meal(name: "Pasta with Meatballs", photo: photo3, rating: 3)!
+        let meal3 = MealData(name: "Pasta with Meatballs", photo: photo3, rating: 3)!
         
         meals += [meal1, meal2, meal3]
     }
@@ -69,12 +84,58 @@ class MealTableViewController: UITableViewController {
         let meal = meals[(indexPath as NSIndexPath).row]
         
         cell.nameLabel.text = meal.name
-        cell.photoImageView.image = meal.photo
+        
+        cell.photoImageView.image = nil
+        
+        if BackendlessManager.sharedInstance.isUserLoggedIn() && meal.thumbnailUrl != nil {
+            loadImageFromUrl(cell: cell, thumbnailUrl: meal.thumbnailUrl!)
+        } else {
+            cell.photoImageView.image = meal.photo
+        }
+        
         cell.ratingControl.rating = meal.rating
         
         return cell
     }
 
+    func loadImageFromUrl(cell: MealTableViewCell, thumbnailUrl: String) {
+        
+        cell.spinner.startAnimating()
+        
+        let url = URL(string: thumbnailUrl)!
+        
+        let session = URLSession.shared
+        
+        let task = session.dataTask(with: url, completionHandler: { (data, response, error) in
+            
+            if error == nil {
+                
+                do {
+                    
+                    let data = try Data(contentsOf: url, options: [])
+                    
+                    DispatchQueue.main.async {
+                        
+                        // We got the image data! Use it to create a UIImage for our cell's
+                        // UIImageView. Then, stop the activity spinner.
+                        cell.photoImageView.image = UIImage(data: data)
+                        cell.spinner.stopAnimating()
+                    }
+                    
+                } catch {
+                    print("NSData Error: \(error)")
+                    cell.spinner.stopAnimating()
+                }
+                
+            } else {
+                print("NSURLSession Error: \(error)")
+                cell.spinner.stopAnimating()
+            }
+        })
+        
+        task.resume()
+    }
+    
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         
@@ -87,11 +148,45 @@ class MealTableViewController: UITableViewController {
         
         if editingStyle == .delete {
             
-            // Delete the row from the data source
-            meals.remove(at: (indexPath as NSIndexPath).row)
-            saveMeals()
-            tableView.deleteRows(at: [indexPath], with: .fade)
-            
+            if BackendlessManager.sharedInstance.isUserLoggedIn() {
+                
+                // Find the MealData in the data source that we wish to delete.
+                let mealToRemove = meals[indexPath.row]
+                
+                BackendlessManager.sharedInstance.removeMeal(mealToRemove: mealToRemove,
+                                                             
+                   completion: {
+                    
+                        // It was removed from the database, now delete the row from the data source.
+                        self.meals.remove(at: (indexPath as NSIndexPath).row)
+                        tableView.deleteRows(at: [indexPath], with: .fade)
+                    },
+                   
+                   error: {
+                    
+                        // It was NOT removed - tell the user and DON'T delete the row from the data source.
+                        let alertController = UIAlertController(title: "Remove Failed",
+                                                                message: "Oops! We couldn't remove your Meal at this time.",
+                                                                preferredStyle: .alert)
+                        
+                        let okAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                        alertController.addAction(okAction)
+                        
+                        self.present(alertController, animated: true, completion: nil)
+                    }
+                )
+                
+            } else {
+                
+                // Delete the row from the data source
+                meals.remove(at: (indexPath as NSIndexPath).row)
+                
+                // Save the meals.
+                saveMealsToArchiver()
+                
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }
+
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
@@ -119,7 +214,6 @@ class MealTableViewController: UITableViewController {
         }
     }
 
-    
     @IBAction func unwindToMealList(_ sender: UIStoryboardSegue) {
         
         if let sourceViewController = sender.source as? MealViewController, let meal = sourceViewController.meal {
@@ -138,24 +232,26 @@ class MealTableViewController: UITableViewController {
                 tableView.insertRows(at: [newIndexPath], with: .bottom)
             }
             
-            // Save the meals.
-            saveMeals()
+            if !BackendlessManager.sharedInstance.isUserLoggedIn() {
+                // We're not logged in - save the meals using NSKeyedUnarchiver.
+                saveMealsToArchiver()
+            }
         }
     }
     
     // MARK: NSCoding
     
-    func saveMeals() {
+    func saveMealsToArchiver() {
         
-        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: MealData.ArchiveURL.path)
         
         if !isSuccessfulSave {
             print("Failed to save meals...")
         }
     }
     
-    func loadMeals() -> [Meal]? {
+    func loadMealsFromArchiver() -> [MealData]? {
         
-        return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+        return NSKeyedUnarchiver.unarchiveObject(withFile: MealData.ArchiveURL.path) as? [MealData]
     }
 }
