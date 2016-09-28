@@ -16,11 +16,19 @@ class MealTableViewController: UITableViewController {
     
     let backendless = Backendless.sharedInstance()!
     
+    // More info on NSCache:
+    // http://nshipster.com/nscache/
+    // http://stackoverflow.com/questions/10502809/objective-c-benefits-of-using-nscache-over-a-static-nsmutabledictionary
+    // http://blog.csdn.net/chuanyituoku/article/details/17336443
+    
+    // Create a cache that uses keys of type NSString to point to types of UIImage.
     var imageCache = NSCache<NSString, UIImage>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        imageCache.countLimit = 50 // Cache up to 50 UIImage(s)
+            
         // Add support for pull-to-refresh on the table view.
         self.refreshControl?.addTarget(self, action: #selector(refresh(sender:)), for: UIControlEvents.valueChanged)
 
@@ -112,6 +120,7 @@ class MealTableViewController: UITableViewController {
             
             if imageCache.object(forKey: meal.thumbnailUrl! as NSString) != nil {
                 
+                // If the URL for the thumbnail is in the cache already - get the UIImage that belongs to it.
                 cell.photoImageView.image = imageCache.object(forKey: meal.thumbnailUrl! as NSString)
                 
             } else {
@@ -128,6 +137,8 @@ class MealTableViewController: UITableViewController {
                         
                             cell.photoImageView.image = image
                         
+                            // Since we went to the trouble of pulling down the image data and 
+                            // building a UIImage lets cache the UIImage using the URL as the key.
                             self.imageCache.setObject(image, forKey: meal.thumbnailUrl! as NSString)
                         }
                         
