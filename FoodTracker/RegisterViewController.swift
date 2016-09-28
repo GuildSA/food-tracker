@@ -117,30 +117,6 @@ class RegisterViewController: UIViewController {
             })
     }
 
-    func logoutUser(completion: @escaping () -> (), error: @escaping (String) -> ()) {
-        
-        // First, check if the user is actually logged in.
-        if BackendlessManager.sharedInstance.isUserLoggedIn() {
-            
-            // If they are currently logged in - go ahead and log them out!
-            
-            backendless.userService.logout( { (user: Any!) -> Void in
-                print("User logged out!")
-                completion()
-                },
-                                            
-                                            error: { (fault: Fault?) -> Void in
-                                                print("User failed to log out: \(fault)")
-                                                error((fault?.message)!)
-            })
-            
-        } else {
-            
-            print("User is already logged out!");
-            completion()
-        }
-    }
-    
     @IBAction func cancel(_ sender: UIButton) {
         
         spinner.stopAnimating()

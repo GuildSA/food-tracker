@@ -24,11 +24,14 @@ class MealTableViewController: UITableViewController {
         
         if BackendlessManager.sharedInstance.isUserLoggedIn() {
             
-            BackendlessManager.sharedInstance.loadMeals { mealData in
+            BackendlessManager.sharedInstance.loadMeals(
                 
-                self.meals += mealData
-                self.tableView.reloadData()
-            }
+                completion: { mealData in
+                    self.meals += mealData
+                    self.tableView.reloadData()
+                },
+                
+                error: {})
             
         } else {
 

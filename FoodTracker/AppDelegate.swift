@@ -24,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             
-            self.window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "mealNavController")
+            self.window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "tabBarController")
         }
         
         return true
