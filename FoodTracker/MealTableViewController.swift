@@ -16,22 +16,23 @@ class MealTableViewController: UITableViewController {
     
     let backendless = Backendless.sharedInstance()!
     
+    var imageCache = NSCache<NSString, UIImage>()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // Add support for pull-to-refresh on the table view.
+        self.refreshControl?.addTarget(self, action: #selector(refresh(sender:)), for: UIControlEvents.valueChanged)
 
         // Use the edit button item provided by the table view controller.
         navigationItem.leftBarButtonItem = editButtonItem
         
         if BackendlessManager.sharedInstance.isUserLoggedIn() {
             
-            BackendlessManager.sharedInstance.loadMeals { mealData in
-                
-                self.meals += mealData
-                self.tableView.reloadData()
-            }
+            refresh(sender: self)
             
         } else {
-
+            
             // Load any saved meals, otherwise load sample data.
             if let savedMeals = loadMealsFromArchiver() {
                 meals += savedMeals
@@ -39,11 +40,31 @@ class MealTableViewController: UITableViewController {
                 // Load the sample data.
                 
 // HACK: Disabled sample meal data for now!
-//loadSampleMeals()
+                //loadSampleMeals()
             }
         }
     }
 
+    func refresh(sender: AnyObject) {
+        
+        if BackendlessManager.sharedInstance.isUserLoggedIn() {
+            
+            BackendlessManager.sharedInstance.loadMeals(
+                
+                completion: { mealData in
+                    
+                    self.meals = mealData
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                },
+                
+                error: {
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+            })
+        }
+    }
+    
     func loadSampleMeals() {
         
         let photo1 = UIImage(named: "meal1")!
@@ -88,7 +109,36 @@ class MealTableViewController: UITableViewController {
         cell.photoImageView.image = nil
         
         if BackendlessManager.sharedInstance.isUserLoggedIn() && meal.thumbnailUrl != nil {
-            loadImageFromUrl(cell: cell, thumbnailUrl: meal.thumbnailUrl!)
+            
+            if imageCache.object(forKey: meal.thumbnailUrl! as NSString) != nil {
+                
+                cell.photoImageView.image = imageCache.object(forKey: meal.thumbnailUrl! as NSString)
+                
+            } else {
+                
+                cell.spinner.startAnimating()
+                
+                loadImageFromUrl(thumbnailUrl: meal.thumbnailUrl!,
+                                 
+                    completion: { data in
+                        
+                        // We got the image data! Use it to create a UIImage for our cell's
+                        // UIImageView. Then, stop the activity spinner.
+                        if let image = UIImage(data: data) {
+                        
+                            cell.photoImageView.image = image
+                        
+                            self.imageCache.setObject(image, forKey: meal.thumbnailUrl! as NSString)
+                        }
+                        
+                        cell.spinner.stopAnimating()
+                    },
+                                 
+                    loadError: {
+                        cell.spinner.stopAnimating()
+                    })
+            }
+            
         } else {
             cell.photoImageView.image = meal.photo
         }
@@ -98,11 +148,11 @@ class MealTableViewController: UITableViewController {
         return cell
     }
 
-    func loadImageFromUrl(cell: MealTableViewCell, thumbnailUrl: String) {
-        
-        cell.spinner.startAnimating()
+    func loadImageFromUrl(thumbnailUrl: String, completion: @escaping (Data) -> (), loadError: @escaping () -> ()) {
         
         let url = URL(string: thumbnailUrl)!
+        
+        print("loadImageFromUrl: \(url)")
         
         let session = URLSession.shared
         
@@ -111,25 +161,24 @@ class MealTableViewController: UITableViewController {
             if error == nil {
                 
                 do {
-                    
                     let data = try Data(contentsOf: url, options: [])
                     
                     DispatchQueue.main.async {
-                        
-                        // We got the image data! Use it to create a UIImage for our cell's
-                        // UIImageView. Then, stop the activity spinner.
-                        cell.photoImageView.image = UIImage(data: data)
-                        cell.spinner.stopAnimating()
+                        completion(data)
                     }
                     
                 } catch {
                     print("NSData Error: \(error)")
-                    cell.spinner.stopAnimating()
+                    DispatchQueue.main.async {
+                        loadError()
+                    }
                 }
                 
             } else {
                 print("NSURLSession Error: \(error)")
-                cell.spinner.stopAnimating()
+                DispatchQueue.main.async {
+                    loadError()
+                }
             }
         })
         
