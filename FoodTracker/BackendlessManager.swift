@@ -371,7 +371,7 @@ class BackendlessManager {
         }
     }
     
-    func loadMeals(completion: @escaping ([MealData]) -> ()) {
+    func loadMeals(completion: @escaping ([MealData]) -> (), error: @escaping () -> ()) {
         
         let dataStore = backendless.persistenceService.of(Meal.ofClass())
         
@@ -412,10 +412,11 @@ class BackendlessManager {
             
             error: { (fault: Fault?) -> Void in
                 print("Failed to find Meal: \(fault)")
+                error()
             }
         )
     }
-    
+
     func removeMeal(mealToRemove: MealData, completion: @escaping () -> (), error: @escaping () -> ()) {
         
         print("Remove Meal: \(mealToRemove.objectId!)")
