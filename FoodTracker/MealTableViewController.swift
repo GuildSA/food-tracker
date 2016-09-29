@@ -62,6 +62,11 @@ class MealTableViewController: UITableViewController {
                 completion: { mealData in
                     
                     self.meals = mealData
+                    
+//                    self.meals.sort {
+//                        $0.rating > $1.rating
+//                    }
+                    
                     self.tableView.reloadData()
                     self.refreshControl?.endRefreshing()
                 },
