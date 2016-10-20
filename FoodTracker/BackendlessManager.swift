@@ -392,7 +392,12 @@ class BackendlessManager {
                     
                     let meal = meal as! Meal
                     
-                    print("Meal: \(meal.objectId!), name: \(meal.name), photoUrl: \"\(meal.photoUrl!)\", rating: \"\(meal.rating)\"")
+                    print("Meal ----------------------------")
+                    print("objectId: \(meal.objectId!)")
+                    print("ownerId:  \(meal.ownerId!)")
+                    print("name:     \"\(meal.name!)\"")
+                    print("photoUrl: \"\(meal.photoUrl!)\"")
+                    print("rating:   \(meal.rating)")
                     
                     let newMealData = MealData(name: meal.name!, photo: nil, rating: meal.rating)
                     

@@ -12,6 +12,7 @@ import Foundation
 class Meal: NSObject {
     
     var objectId: String?
+    var ownerId: String?
     var name: String?
     var photoUrl: String?
     var thumbnailUrl: String?
